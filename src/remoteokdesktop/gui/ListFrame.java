@@ -1,11 +1,13 @@
 package remoteokdesktop.gui;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JFrame;
@@ -16,6 +18,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import net.miginfocom.swing.MigLayout;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import remoteokdesktop.model.RemoteOkObject;
 
 public class ListFrame extends JFrame {
@@ -69,18 +73,26 @@ public class ListFrame extends JFrame {
         tabbedPane.add("Favoritos", favPanel);
         this.add(tabbedPane, "align center");
         
-        HttpResponse<RemoteOkObject[]> remoteOkResponse;
+        HttpResponse<JsonNode> remoteOkResponse = null;
         try {
-            remoteOkResponse = Unirest.get("https://remoteok.io/api").asObject(RemoteOkObject[].class);
+            remoteOkResponse = Unirest.get("https://remoteok.io/api").asJson();
             /*HttpResponse<JsonNode> jsonResponse = Unirest.get("https://remoteok.io/api")
                     .asJson();*/
-            System.out.println(remoteOkResponse.getBody());
+//            System.out.println(remoteOkResponse.getBody());
         } catch (UnirestException ex) {
             ex.printStackTrace();
         }
-        
+
+        JSONArray arr = remoteOkResponse.getBody().getArray();
+        ObjectMapper om = new ObjectMapper();
+        try {
+            om.readValue(arr.get(4).toString(), RemoteOkObject.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println();
+
         //RemoteOkObject[] remoteOkObject = remoteOkResponse.getBody();
         
-        System.out.println("sdadasdasdasdasdasda");
     }
 }
