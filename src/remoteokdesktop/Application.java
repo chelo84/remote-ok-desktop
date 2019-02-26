@@ -1,6 +1,6 @@
 package remoteokdesktop;
 
-import br.com.estacio.remoteokdesktop.gui.ListFrame;
+import remoteokdesktop.gui.ListFrame;
 
 public class Application {
 
