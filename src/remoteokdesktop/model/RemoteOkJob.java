@@ -17,7 +17,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RemoteOkObject {
+public class RemoteOkJob {
     @JsonProperty("id")
     private Long id;
     @JsonProperty("epoch")
