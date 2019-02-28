@@ -195,9 +195,9 @@ public class ListFrame extends JFrame {
                 JPanel othersPanel = new WhitePanel(new MigLayout());
                 
                 IconFontSwing.register(FontAwesome.getIconFont());
-                Icon icon = IconFontSwing.buildIcon(FontAwesome.SMILE_O, 24, new Color(0, 150, 0));
+                Icon icon = IconFontSwing.buildIcon(FontAwesome.HEART_O, 10, Color.BLACK);
                 JButton btnLike = new JButton(icon);
-                othersPanel.add(btnLike);
+                othersPanel.add(btnLike, "dock east, width 10px");
                 
                 jobPanel.add(othersPanel);
 
