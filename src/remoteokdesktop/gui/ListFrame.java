@@ -1,40 +1,55 @@
 package remoteokdesktop.gui;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+
+import org.json.JSONArray;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import javax.imageio.ImageIO;
-import javax.swing.*;
-
+import jiconfont.icons.font_awesome.FontAwesome;
+import jiconfont.swing.IconFontSwing;
 import net.coobird.thumbnailator.Thumbnails;
 import net.miginfocom.swing.MigLayout;
-import org.json.JSONArray;
 import remoteokdesktop.model.RemoteOkJob;
 
-import static java.util.Objects.nonNull;
-
 public class ListFrame extends JFrame {
-    
+	List<RemoteOkJob> allJobs = null;
+	List<RemoteOkJob> jobs = null;
+	JPanel allListPanel = new WhitePanel(new MigLayout());
+    JPanel favPanel = new WhitePanel(new MigLayout("fillx"));
+	
     public ListFrame() {
+    	this.getJobs(null);
         this.setTitle("RemoteOK");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setPreferredSize(new Dimension(600, 600));
+        this.setPreferredSize(new Dimension(500, 500));
         createComponents();
         this.setVisible(true);
         this.setLocationRelativeTo(null);
+        this.getContentPane().setBackground(Color.WHITE);
         this.pack();
     }
     
@@ -42,61 +57,30 @@ public class ListFrame extends JFrame {
         try {
             this.setLayout(new MigLayout("fillx"));
 
-            JPanel searchPanel = new JPanel(new MigLayout("fillx"));
+            JPanel searchPanel = new WhitePanel(new MigLayout("fillx"));
 
             JTextField searchField = new JTextField(25);
+            searchField.addActionListener((ev) -> {
+				getJobs(((JTextField) ev.getSource()).getText());
+				paintJobs(allListPanel);
+			});
             searchField.setToolTipText("Search for a remote job!");
             searchPanel.add(searchField, "align center");
             this.add(searchPanel, "align center, wrap");
 
-            List<RemoteOkJob> jobs = this.getJobs();
-
             JTabbedPane tabbedPane = new JTabbedPane();
-
-            JPanel allListPanel = new JPanel(new MigLayout());
+            
             JScrollPane allListScroller = new JScrollPane(allListPanel,
                                                             JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                                                             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            allListScroller.getVerticalScrollBar().setUnitIncrement(20);
+            allListScroller.setBackground(Color.WHITE);
             allListScroller.setSize(new Dimension(100, 100));
 
-            jobs.forEach((job) -> {
-                try {
-                    JPanel jobPanel = new JPanel(new MigLayout());
-                    jobPanel.setSize(new Dimension(100, 100));
-
-                    JPanel logoPanel = new JPanel(new MigLayout());
-                    if(nonNull(job.getLogoUrl())) {
-                        BufferedImage image = ImageIO.read(Unirest.get(job.getLogoUrl()).asBinary().getBody());
-                        if(nonNull(image)) {
-                            image = this.resize(image, 30, 30);
-                            JLabel imgLabel = new JLabel(new ImageIcon(image));
-
-                            logoPanel.add(imgLabel);
-                        }
-                    }
-                    jobPanel.add(logoPanel, "growy");
-
-                    JPanel infoPanel = new JPanel(new MigLayout("fillx"));
-                    JLabel companyLabel = new JLabel("<html><strong>"+ job.getCompany() +"</html>");
-
-                    infoPanel.add(companyLabel, "wrap");
-                    infoPanel.add(new JLabel(formatDate(job.getDate())), "wrap");
-                    infoPanel.add(new JLabel("<html>"+ this.getDescription(job.getDescription(), " <br> ", 80) +"</html>"));
-                    jobPanel.add(infoPanel, "wrap, pushx");
-
-                    allListPanel.add(jobPanel, "wrap");
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (UnirestException e) {
-                    e.printStackTrace();
-                }
-            });
+            this.paintJobs(allListPanel);
 
             tabbedPane.add("Todos", allListScroller);
 
-//        JPanel favPanel = new JPanel(new MigLayout("fillx"));
 //        JList favList = new JList();
 //        favList.setBackground(Color.decode("#5D6D7E"));
 //        favList.setForeground(Color.WHITE);
@@ -106,35 +90,36 @@ public class ListFrame extends JFrame {
 //
 //        favPanel.add(favListScroller, "align center, wrap");
 //
-//        tabbedPane.add("Favoritos", favPanel);
+            tabbedPane.add("Favoritos", favPanel);
+            
+            tabbedPane.getComponentAt(0).setBackground(Color.BLACK);
             this.add(tabbedPane, "align center");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    public List<RemoteOkJob> getJobs() {
+    public void getJobs(String filter) {
         HttpResponse<JsonNode> remoteOkResponse = null;
         try {
             remoteOkResponse = Unirest.get("https://remoteok.io/api").asJson();
-            /*HttpResponse<JsonNode> jsonResponse = Unirest.get("https://remoteok.io/api")
-                    .asJson();*/
-//            System.out.println(remoteOkResponse.getBody());
-        } catch (UnirestException ex) {
+            JSONArray arr = remoteOkResponse.getBody().getArray();
+            arr.remove(0);
+            ObjectMapper mapper = new ObjectMapper();
+            jobs = allJobs =  mapper.readValue(arr.toString(), mapper.getTypeFactory().constructCollectionType(List.class, RemoteOkJob.class));
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
-        JSONArray arr = remoteOkResponse.getBody().getArray();
-        arr.remove(0);
-        ObjectMapper mapper = new ObjectMapper();
-        List<RemoteOkJob> list = null;
-        try {
-            list =  mapper.readValue(arr.toString(), mapper.getTypeFactory().constructCollectionType(List.class, RemoteOkJob.class));
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(Objects.nonNull(filter) && !filter.isEmpty()) {
+        	jobs = allJobs.stream()
+        				.filter(job -> job.getCompany().contains(filter) || job.getSlug().contains(filter))
+        				.collect(Collectors.toList());
+        } else {
+        	jobs = allJobs;
         }
-
-        return nonNull(list) ? list : new ArrayList();
+        
+        System.out.println(jobs.size());
     }
 
     public BufferedImage resize(BufferedImage img, int newW, int newH) {
@@ -146,15 +131,15 @@ public class ListFrame extends JFrame {
         return null;
     }
 
-    public JLabel boldLabel(String text) {
+    public JLabel unboldLabel(String text) {
         JLabel label = new JLabel(text);
         Font font = label.getFont();
-        label.setFont(font.deriveFont(font.getStyle() | Font.BOLD));
+        label.setFont(font.deriveFont(font.getStyle() ^ Font.BOLD));
         return label;
     }
 
     public String formatDate(Date date) {
-        SimpleDateFormat format = new SimpleDateFormat("YYYY-MM-DD hh:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("YYYY/MM/DD hh:mm:ss");
         return format.format(date);
     }
 
@@ -166,8 +151,6 @@ public class ListFrame extends JFrame {
         String prefix = "";
         while (index < text.length())
         {
-            // Don't put the insert in the very first iteration.
-            // This is easier than appending it *after* each substring
             builder.append(prefix);
             prefix = insert;
             builder.append(text.substring(index,
@@ -175,5 +158,59 @@ public class ListFrame extends JFrame {
             index += period;
         }
         return builder.toString();
+    }
+    
+    public void paintJobs(JPanel panelToAppend) {
+    	try {
+    	panelToAppend.removeAll();
+    	jobs.forEach((job) -> {
+            try {
+                JPanel jobPanel = new WhitePanel(new MigLayout());
+                jobPanel.setSize(new Dimension(100, 100));
+
+                JPanel logoPanel = new WhitePanel(new MigLayout());
+                if(Objects.nonNull(job.getLogoUrl())) {
+                    BufferedImage image = ImageIO.read(Unirest.get(job.getLogoUrl()).asBinary().getBody());
+                    if(Objects.nonNull(image)) {
+                        image = this.resize(image, 30, 30);
+                        JLabel imgLabel = new JLabel(new ImageIcon(image));
+
+                        logoPanel.add(imgLabel);
+                    }
+                } else {
+                	Icon icon = new EmptyIcon(30, 30);
+                	JLabel imgLabel = new JLabel(icon);
+                	logoPanel.add(imgLabel);
+                }
+                jobPanel.add(logoPanel, "growy");
+
+                JPanel infoPanel = new WhitePanel(new MigLayout("fillx"));
+                JLabel companyLabel = new JLabel(job.getCompany());
+                	
+                infoPanel.add(companyLabel, "wrap");
+                infoPanel.add(this.unboldLabel(formatDate(job.getDate())), "wrap");
+                infoPanel.add(this.unboldLabel("<html>"+ this.getDescription(job.getDescription(), " <br> ", 60) +"</html>"));
+                jobPanel.add(infoPanel, "wrap, pushx");
+                
+                JPanel othersPanel = new WhitePanel(new MigLayout());
+                
+                IconFontSwing.register(FontAwesome.getIconFont());
+                Icon icon = IconFontSwing.buildIcon(FontAwesome.SMILE_O, 24, new Color(0, 150, 0));
+                JButton btnLike = new JButton(icon);
+                othersPanel.add(btnLike);
+                
+                jobPanel.add(othersPanel);
+
+                panelToAppend.add(jobPanel, "wrap");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    	
+    	panelToAppend.repaint();
+    	panelToAppend.revalidate();
+    	} catch(Exception ex) {
+    		ex.printStackTrace();
+    	}
     }
 }
