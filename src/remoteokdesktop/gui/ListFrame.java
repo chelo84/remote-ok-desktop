@@ -3,6 +3,8 @@ package remoteokdesktop.gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -12,15 +14,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import org.json.JSONArray;
 
@@ -75,7 +69,7 @@ public class ListFrame extends JFrame {
                                                             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
             allListScroller.getVerticalScrollBar().setUnitIncrement(20);
             allListScroller.setBackground(Color.WHITE);
-            allListScroller.setSize(new Dimension(100, 100));
+            allListScroller.setSize(new Dimension(300, 300));
 
             this.paintJobs(allListPanel);
 
@@ -165,7 +159,8 @@ public class ListFrame extends JFrame {
     	panelToAppend.removeAll();
     	jobs.forEach((job) -> {
             try {
-                JPanel jobPanel = new WhitePanel(new MigLayout());
+                JPanel remoteJobPanel = new WhitePanel(new MigLayout("fillx"));
+                JPanel jobPanel = new WhitePanel(new MigLayout("fillx"));
                 jobPanel.setSize(new Dimension(100, 100));
 
                 JPanel logoPanel = new WhitePanel(new MigLayout());
@@ -182,26 +177,33 @@ public class ListFrame extends JFrame {
                 	JLabel imgLabel = new JLabel(icon);
                 	logoPanel.add(imgLabel);
                 }
-                jobPanel.add(logoPanel, "growy");
+                jobPanel.add(logoPanel, "");
 
-                JPanel infoPanel = new WhitePanel(new MigLayout("fillx"));
+                JPanel infoPanel = new WhitePanel(new MigLayout("debug"));
                 JLabel companyLabel = new JLabel(job.getCompany());
                 	
                 infoPanel.add(companyLabel, "wrap");
                 infoPanel.add(this.unboldLabel(formatDate(job.getDate())), "wrap");
                 infoPanel.add(this.unboldLabel("<html>"+ this.getDescription(job.getDescription(), " <br> ", 60) +"</html>"));
-                jobPanel.add(infoPanel, "wrap, pushx");
+                jobPanel.add(infoPanel, "wrap");
                 
                 JPanel othersPanel = new WhitePanel(new MigLayout());
-                
-                IconFontSwing.register(FontAwesome.getIconFont());
-                Icon icon = IconFontSwing.buildIcon(FontAwesome.HEART_O, 10, Color.BLACK);
-                JButton btnLike = new JButton(icon);
-                othersPanel.add(btnLike, "dock east, width 10px");
-                
-                jobPanel.add(othersPanel);
 
-                panelToAppend.add(jobPanel, "wrap");
+                IconFontSwing.register(FontAwesome.getIconFont());
+                JPanel likePanel = new JPanel(new MigLayout());
+                likePanel.setBackground(new Color(102, 102,102,50));
+                likePanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, Color.BLACK));
+                Icon icon = IconFontSwing.buildIcon(FontAwesome.HEART_O, 15, Color.BLACK);
+                likePanel.add(new JLabel(icon));
+                othersPanel.add(likePanel, "width 10px");
+
+                JPanel sharePanel = new SharePanel();
+
+                othersPanel.add(sharePanel, "width 10px, gapx 327");
+
+                remoteJobPanel.add(jobPanel, "wrap");
+                remoteJobPanel.add(othersPanel, "wrap");
+                panelToAppend.add(remoteJobPanel, "wrap");
             } catch (Exception e) {
                 e.printStackTrace();
             }
