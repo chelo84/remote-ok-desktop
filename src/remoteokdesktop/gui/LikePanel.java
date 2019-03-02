@@ -52,7 +52,6 @@ public class LikePanel extends JPanel {
                 fatherPanel.repaint();
                 fatherPanel.revalidate();
             }
-
         });
     }
 

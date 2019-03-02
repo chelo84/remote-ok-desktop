@@ -3,6 +3,7 @@ package remoteokdesktop.util;
 import jiconfont.icons.font_awesome.FontAwesome;
 import jiconfont.swing.IconFontSwing;
 import net.coobird.thumbnailator.Thumbnails;
+import remoteokdesktop.gui.WhitePanel;
 
 import javax.swing.*;
 import java.awt.*;

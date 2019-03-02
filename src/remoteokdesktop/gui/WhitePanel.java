@@ -16,4 +16,5 @@ public class WhitePanel extends JPanel {
 		this();
 		super.setLayout(layout);
 	}
+
 }

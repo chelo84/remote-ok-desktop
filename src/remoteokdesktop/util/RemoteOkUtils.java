@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
-import com.sun.deploy.util.StringUtils;
 import org.json.JSONArray;
 import remoteokdesktop.model.RemoteOkJob;
 
@@ -25,7 +24,7 @@ public class RemoteOkUtils {
     private static final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
     private static final String FAVORITES_PATH = "favorites.txt";
 
-    public static List<RemoteOkJob> getJobs() {
+    public static List<RemoteOkJob> getAll() {
         HttpResponse<JsonNode> remoteOkResponse = null;
         List<RemoteOkJob> jobs = null;
         try {
@@ -33,7 +32,7 @@ public class RemoteOkUtils {
             JSONArray arr = remoteOkResponse.getBody().getArray();
             arr.remove(0);
             ObjectMapper mapper = new ObjectMapper();
-            jobs = jsonArrayToJobs(arr);
+            jobs = jsonArrayToJobs(arr.toString());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -41,14 +40,10 @@ public class RemoteOkUtils {
         return jobs;
     }
 
-    public static List<RemoteOkJob> getJobs(String filter) {
-        List<RemoteOkJob> jobs = getJobs();
+    public static List<RemoteOkJob> getAll(String filter) {
+        List<RemoteOkJob> jobs = getAll();
 
-        if(Objects.nonNull(filter) && !filter.isEmpty()) {
-            jobs = jobs.stream()
-                    .filter(job -> job.getCompany().contains(filter) || job.getSlug().contains(filter))
-                    .collect(Collectors.toList());
-        }
+        jobs = filter(filter, jobs);
 
         return jobs;
     }
@@ -56,7 +51,7 @@ public class RemoteOkUtils {
     public static void likeJob(RemoteOkJob job) {
         try {
 
-            List<RemoteOkJob> likedJobs = getLikedJobs();
+            List<RemoteOkJob> likedJobs = getLiked();
             FileWriter fileWriter = new FileWriter(FAVORITES_PATH);
             PrintWriter printWriter = new PrintWriter(fileWriter);
             likedJobs.add(job);
@@ -69,7 +64,7 @@ public class RemoteOkUtils {
 
     public static void dislikeJob(RemoteOkJob job) {
         try {
-            List<RemoteOkJob> likedJobs = getLikedJobs();
+            List<RemoteOkJob> likedJobs = getLiked();
             FileWriter fileWriter = new FileWriter(FAVORITES_PATH);
             PrintWriter printWriter = new PrintWriter(fileWriter);
             likedJobs.removeAll(likedJobs.stream().filter(j -> j.getId().equals(job.getId())).collect(Collectors.toList()));
@@ -80,47 +75,76 @@ public class RemoteOkUtils {
         }
     }
 
-    public static List<RemoteOkJob> getLikedJobs() throws IOException {
-        String result = Files.readAllLines(Paths.get(FAVORITES_PATH)).stream().collect(Collectors.joining("\n"));
+    public static List<RemoteOkJob> getLiked() {
+        String result = null;
+        try {
+            result = Files.readAllLines(Paths.get(FAVORITES_PATH)).stream().collect(Collectors.joining("\n"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return jsonArrayToJobs(result);
     }
 
-    private static List<RemoteOkJob> jsonArrayToJobs(String arr) throws IOException {
-        if(arr.isEmpty() || isNull(arr)) {
+    public static List<RemoteOkJob> getLiked(String filter) {
+        List<RemoteOkJob> jobs = getLiked();
+
+        jobs = filter(filter, jobs);
+
+        return jobs;
+    }
+
+    private static List<RemoteOkJob> filter(String filter, List<RemoteOkJob> jobs) {
+        if(Objects.nonNull(filter) && !filter.isEmpty()) {
+            return jobs.stream()
+                    .filter(job -> job.getCompany().contains(filter) || job.getSlug().contains(filter))
+                    .collect(Collectors.toList());
+        }
+
+        return jobs;
+    }
+
+    private static List<RemoteOkJob> jsonArrayToJobs(String stringArr) {
+        if(stringArr.isEmpty() || isNull(stringArr)) {
             return new ArrayList<>();
         }
 
-        return mapper.readValue(arr, mapper.getTypeFactory().constructCollectionType(List.class, RemoteOkJob.class));
+        try {
+            return mapper.readValue(stringArr, mapper.getTypeFactory().constructCollectionType(List.class, RemoteOkJob.class));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
     }
 
-    private static String jobArrayToJson(List<RemoteOkJob> jobs) throws JsonProcessingException {
-        return mapper.writeValueAsString(jobs);
+    private static String jobArrayToJson(List<RemoteOkJob> jobs) {
+        try {
+            return mapper.writeValueAsString(jobs);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     public static String jobToJson(RemoteOkJob job) throws JsonProcessingException {
         return mapper.writeValueAsString(job);
     }
 
-    public static RemoteOkJob jsonToJob(JsonNode jobJson) throws IOException {
-        return mapper.readValue(jobJson.toString(), RemoteOkJob.class);
-    }
-
-    public static List<RemoteOkJob> jsonArrayToJobs(JSONArray arr) throws IOException {
-        return mapper.readValue(arr.toString(), mapper.getTypeFactory().constructCollectionType(List.class, RemoteOkJob.class));
-    }
-
-    public static Boolean isJobLiked(RemoteOkJob job) {
+    public static RemoteOkJob jsonToJob(JsonNode jobJson) {
         try {
-            return getLikedJobs().stream().anyMatch((j) -> j.getId().equals(job.getId()));
-        } catch (IOException ex) {
-            ex.printStackTrace();
+            return mapper.readValue(jobJson.toString(), RemoteOkJob.class);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        return false;
+        return null;
     }
 
-    public static Boolean isJobLiked(List<RemoteOkJob> likedJobs, RemoteOkJob job) {
+    public static Boolean isLiked(RemoteOkJob job) {
+        return getLiked().stream().anyMatch((j) -> j.getId().equals(job.getId()));
+    }
+
+    public static Boolean isLiked(List<RemoteOkJob> likedJobs, RemoteOkJob job) {
         return likedJobs.stream().anyMatch((j) -> j.getId().equals(job.getId()));
     }
 }
