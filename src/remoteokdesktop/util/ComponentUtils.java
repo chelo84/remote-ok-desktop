@@ -27,6 +27,22 @@ public class ComponentUtils {
         return label;
     }
 
+    public static JLabel bold(Component label) {
+        Font font = label.getFont();
+        label.setFont(font.deriveFont(font.getStyle() | Font.BOLD));
+        return (JLabel) label;
+    }
+
+    public static JLabel unbold(Component label) {
+        Font font = label.getFont();
+        label.setFont(font.deriveFont(font.getStyle() & ~Font.BOLD));
+        return (JLabel) label;
+    }
+
+    public static Boolean isBold(Component label) {
+        return label.getFont().isBold();
+    }
+
     public static Icon getOpenHeartLabel() {
         IconFontSwing.register(FontAwesome.getIconFont());
         return IconFontSwing.buildIcon(FontAwesome.HEART_O, 15, Color.BLACK);

@@ -127,23 +127,6 @@ public class RemoteOkUtils {
         return null;
     }
 
-    public static String jobToJson(RemoteOkJob job) throws JsonProcessingException {
-        return mapper.writeValueAsString(job);
-    }
-
-    public static RemoteOkJob jsonToJob(JsonNode jobJson) {
-        try {
-            return mapper.readValue(jobJson.toString(), RemoteOkJob.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static Boolean isLiked(RemoteOkJob job) {
-        return getLiked().stream().anyMatch((j) -> j.getId().equals(job.getId()));
-    }
-
     public static Boolean isLiked(List<RemoteOkJob> likedJobs, RemoteOkJob job) {
         return likedJobs.stream().anyMatch((j) -> j.getId().equals(job.getId()));
     }

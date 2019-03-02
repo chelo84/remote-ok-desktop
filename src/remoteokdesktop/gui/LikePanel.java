@@ -22,6 +22,7 @@ public class LikePanel extends JPanel {
     JPanel fatherPanel;
 
     public LikePanel() {
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent ev) {
