@@ -65,4 +65,9 @@ public class ComponentUtils {
         IconFontSwing.register(FontAwesome.getIconFont());
         return IconFontSwing.buildIcon(FontAwesome.SHARE_SQUARE, 15, Color.BLACK);
     }
+
+    public static Icon getSearchIcon() {
+        IconFontSwing.register(FontAwesome.getIconFont());
+        return IconFontSwing.buildIcon(FontAwesome.SEARCH, 15, Color.BLACK);
+    }
 }

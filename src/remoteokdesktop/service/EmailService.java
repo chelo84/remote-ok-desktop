@@ -31,7 +31,7 @@ public class EmailService {
             });
 
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(emailFrom));
+            message.setFrom(new InternetAddress("remoteOkDesktop@remoteOk.com"));
             message.setRecipients(
                     Message.RecipientType.TO, InternetAddress.parse(emailTo));
             message.setSubject("");

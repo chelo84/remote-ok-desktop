@@ -6,6 +6,7 @@ import jiconfont.icons.font_awesome.FontAwesome;
 import jiconfont.swing.IconFontSwing;
 import remoteokdesktop.model.RemoteOkJob;
 import remoteokdesktop.service.EmailService;
+import remoteokdesktop.service.LoggedUser;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,7 +39,7 @@ public class SharePanel extends JPanel {
                 JFrame frame = new JFrame("Enviar e-mail");
                 String email = JOptionPane.showInputDialog(frame, "Compartilhar com quem? (E-mail)");
                 if(nonNull(email) && !email.isEmpty()) {
-                    EmailService.sendEmail(remoteOkJob, "marcelo_lacroix@hotmail.com", email);
+                    EmailService.sendEmail(remoteOkJob, LoggedUser.getUser().getEmail(), email);
                 }
             }
         });
