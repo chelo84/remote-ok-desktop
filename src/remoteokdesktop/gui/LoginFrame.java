@@ -47,14 +47,11 @@ public class LoginFrame extends JFrame {
                 User user = mapper.readValue(result, User.class);
                 if(usernameField.getText().equals(user.getUsername()) && passwordField.getText().equals(user.getPassword())) {
                     Preferences userPreferences = Preferences.userRoot();
-                    userPreferences.put("username",user.getUsername());
-                    userPreferences.put("password",user.getPassword());
-                    userPreferences.put("email",user.getEmail());
 
                     loginButton.setText("Loading...");
                     loginButton.setEnabled(false);
                     new Thread(() -> {
-                        ListFrame listFrame = new ListFrame();
+                        ListFrame listFrame = new ListFrame(user.getEmail());
                         LoginFrame.this.dispose();
                     }).start();
                 }

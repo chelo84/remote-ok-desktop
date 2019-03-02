@@ -40,6 +40,7 @@ public class ListFrame extends JFrame {
     private JTabbedPane tabbedPane = new JTabbedPane();
     private JPanel footerPanel = new WhitePanel(new MigLayout("fillx"));
     private List<RemoteOkJob> currentShowingJobs = new ArrayList<>();
+    private String email = "";
     private final Integer jobsPerPage = 50;
 	
     public ListFrame() {
@@ -51,6 +52,11 @@ public class ListFrame extends JFrame {
         this.getContentPane().setBackground(Color.WHITE);
         this.pack();
         this.setLocationRelativeTo(null);
+    }
+
+    public ListFrame(String email) {
+        this();
+        this.email = email;
     }
     
     public void createComponents() {
@@ -277,7 +283,7 @@ public class ListFrame extends JFrame {
                         likePanel.add(likeLabel);
                         othersPanel.add(likePanel);
 
-                        JPanel sharePanel = new SharePanel(job);
+                        JPanel sharePanel = new SharePanel(job, this.email);
                         Icon shareIcon = getShareIcon();
                         JLabel shareLabel = new JLabel(shareIcon);
                         sharePanel.add(shareLabel);

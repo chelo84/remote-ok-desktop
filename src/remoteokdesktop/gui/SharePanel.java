@@ -14,6 +14,7 @@ import static java.util.Objects.nonNull;
 public class SharePanel extends JPanel {
 
     private RemoteOkJob remoteOkJob;
+    private String email;
 
     private SharePanel() {
         this.setBackground(new Color(102, 102,102,50));
@@ -35,14 +36,15 @@ public class SharePanel extends JPanel {
                 JFrame frame = new JFrame("Enviar e-mail");
                 String email = JOptionPane.showInputDialog(frame, "Compartilhar com quem? (E-mail)");
                 if(nonNull(email) && !email.isEmpty()) {
-                    new Thread(() -> EmailService.sendEmail(remoteOkJob, Preferences.userRoot().get("email", ""), email));
+                    new Thread(() -> EmailService.sendEmail(remoteOkJob, email, email));
                 }
             }
         });
     }
 
-    public SharePanel(RemoteOkJob job) {
+    public SharePanel(RemoteOkJob job, String email) {
         this();
         this.remoteOkJob = job;
+        this.email = email;
     }
 }
