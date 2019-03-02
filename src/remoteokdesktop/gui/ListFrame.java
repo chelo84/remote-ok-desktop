@@ -74,7 +74,6 @@ public class ListFrame extends JFrame {
 
             this.paintAllJobs(0);
 
-            tabbedPane.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             tabbedPane.add("Todos", allListScroller);
 
             JScrollPane likedListScroller = new JScrollPane(likedListPanel,
@@ -234,14 +233,7 @@ public class ListFrame extends JFrame {
 
                     infoPanel.add(companyLabel, "wrap");
                     infoPanel.add(unboldLabel(formatDate(job.getDate())), "wrap");
-                    JTextArea description = new JTextArea();
-                    description.setColumns(30);
-                    description.setRows(1);
-                    description.setLineWrap(true);
-                    description.setWrapStyleWord(true);
-                    description.setText(job.getDescription());
-                    description.setEditable(false);
-                    infoPanel.add(description);
+                    infoPanel.add(unboldLabel(getDescription("<html>"+ job.getDescription(), "<br>", 50)));
                     jobPanel.add(infoPanel, "wrap");
 
                     JPanel othersPanel = new WhitePanel(new MigLayout());
