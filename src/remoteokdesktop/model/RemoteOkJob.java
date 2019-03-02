@@ -37,4 +37,6 @@ public class RemoteOkJob {
     private String description;
     @JsonProperty("url")
     private String url;
+    @JsonProperty("position")
+    private String position;
 }

@@ -22,6 +22,8 @@ public class LikePanel extends JPanel {
     JPanel fatherPanel;
 
     public LikePanel() {
+        this.setBackground(new Color(102, 102, 102, 50));
+        this.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, Color.BLACK));
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         this.addMouseListener(new MouseAdapter() {
             @Override

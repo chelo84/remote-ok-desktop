@@ -5,13 +5,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 
 import com.mashape.unirest.http.Unirest;
 
@@ -40,12 +43,13 @@ public class ListFrame extends JFrame {
     public ListFrame() {
         this.setTitle("RemoteOK");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setPreferredSize(new Dimension(500, 500));
+        this.setPreferredSize(new Dimension(550, 700));
         createComponents();
         this.setVisible(true);
-        this.setLocationRelativeTo(null);
         this.getContentPane().setBackground(Color.WHITE);
         this.pack();
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocationRelativeTo(null);
     }
     
     public void createComponents() {
@@ -70,6 +74,7 @@ public class ListFrame extends JFrame {
 
             this.paintAllJobs(0);
 
+            tabbedPane.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             tabbedPane.add("Todos", allListScroller);
 
             JScrollPane likedListScroller = new JScrollPane(likedListPanel,
@@ -120,7 +125,7 @@ public class ListFrame extends JFrame {
         }
         footerPanel.add(pagesPanel, "align center");
 
-        registryQtyPanel.add(new JLabel(String.format("%s registros", currentShowingJobs.size())));
+        registryQtyPanel.add(new JLabel(String.format("%s jobs encontrados", currentShowingJobs.size())));
         footerPanel.add(registryQtyPanel, "dock east");
     }
 
@@ -175,25 +180,73 @@ public class ListFrame extends JFrame {
                 try {
                     JPanel remoteJobPanel = new WhitePanel(new MigLayout("fillx"));
                     JPanel jobPanel = new WhitePanel(new MigLayout("fillx"));
-                    jobPanel.setSize(new Dimension(100, 100));
+                    TitledBorder titledBorder = BorderFactory.createTitledBorder(job.getPosition());
+                    titledBorder.setTitleFont(ComponentUtils.unboldFont(titledBorder.getTitleFont()));
+                    titledBorder.setTitleColor(Color.BLUE);
+                    remoteJobPanel.setBorder(titledBorder);
+                    remoteJobPanel.setPreferredSize(new Dimension(100, 100));
+
+                    remoteJobPanel.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(final MouseEvent e) {
+                            final Border border = remoteJobPanel.getBorder();
+                            if (border instanceof TitledBorder) {
+                                final Rectangle bounds = getBorderTitleRect((TitledBorder) border, remoteJobPanel);
+                                if (bounds.contains(e.getPoint())) {
+                                    try {
+                                        Desktop.getDesktop().browse(new URL(job.getUrl()).toURI());
+                                    } catch (IOException e1) {
+                                        e1.printStackTrace();
+                                    } catch (URISyntaxException e1) {
+                                        e1.printStackTrace();
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    remoteJobPanel.addMouseMotionListener(new MouseAdapter() {
+                        @Override
+                        public void mouseMoved(MouseEvent e) {
+                            final Border border = remoteJobPanel.getBorder();
+                            if (border instanceof TitledBorder) {
+                                final TitledBorder tb = (TitledBorder) border;
+                                final Rectangle bounds = getBorderTitleRect(tb, remoteJobPanel);
+                                if (bounds.contains(e.getPoint())) {
+                                    remoteJobPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                                    tb.setTitleFont(ComponentUtils.boldFont(tb.getTitleFont()));
+
+                                } else {
+                                    remoteJobPanel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                    tb.setTitleFont(ComponentUtils.unboldFont(tb.getTitleFont()));
+                                }
+                                remoteJobPanel.repaint();
+                                remoteJobPanel.revalidate();
+                            }
+                        }
+                    });
 
                     JPanel logoPanel = new WhitePanel(new MigLayout());
                     logoPanel.add(new JLabel(this.getLogo(job)));
-                    jobPanel.add(logoPanel, "");
+                    jobPanel.add(logoPanel, "aligny top");
 
                     JPanel infoPanel = new WhitePanel(new MigLayout());
                     JLabel companyLabel = new JLabel(job.getCompany());
 
                     infoPanel.add(companyLabel, "wrap");
                     infoPanel.add(unboldLabel(formatDate(job.getDate())), "wrap");
-                    infoPanel.add(unboldLabel("<html>" + getDescription(job.getDescription(), " <br> ", 60) + "</html>"));
+                    JTextArea description = new JTextArea();
+                    description.setColumns(30);
+                    description.setRows(1);
+                    description.setLineWrap(true);
+                    description.setWrapStyleWord(true);
+                    description.setText(job.getDescription());
+                    description.setEditable(false);
+                    infoPanel.add(description);
                     jobPanel.add(infoPanel, "wrap");
 
                     JPanel othersPanel = new WhitePanel(new MigLayout());
 
                     JPanel likePanel = new LikePanel(new MigLayout(), job, othersPanel);
-                    likePanel.setBackground(new Color(102, 102, 102, 50));
-                    likePanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, Color.BLACK));
                     Icon icon = getOpenHeartLabel();
                     JLabel likeLabel = new JLabel(icon);
                     if (isLikedPanel || RemoteOkUtils.isLiked(likedJobs, job)) {
@@ -215,7 +268,7 @@ public class ListFrame extends JFrame {
                                     panelToAppend.revalidate();
 
                                     JLabel registryQtyLabel = (JLabel) registryQtyPanel.getComponents()[0];
-                                    registryQtyLabel.setText(String.format("%s registros", Integer.parseInt(registryQtyLabel.getText()
+                                    registryQtyLabel.setText(String.format("%s jobs encontrados", Integer.parseInt(registryQtyLabel.getText()
                                             .substring(0, registryQtyLabel.getText().indexOf(' ')))-1));
                                     registryQtyPanel.repaint();
                                     registryQtyPanel.revalidate();
@@ -229,6 +282,9 @@ public class ListFrame extends JFrame {
                     othersPanel.add(likePanel);
 
                     JPanel sharePanel = new SharePanel();
+                    Icon shareIcon = getShareIcon();
+                    JLabel shareLabel = new JLabel(shareIcon);
+                    sharePanel.add(shareLabel);
 
                     othersPanel.add(sharePanel, "gapx 327");
 
@@ -251,16 +307,23 @@ public class ListFrame extends JFrame {
         }
     }
 
+    private Rectangle getBorderTitleRect(TitledBorder border, JPanel jobPanel) {
+        final TitledBorder tb = border;
+        final FontMetrics fm = jobPanel.getFontMetrics(jobPanel.getFont());
+        final int titleWidth = fm.stringWidth(tb.getTitle()) + 20;
+        return new Rectangle(0, 0, titleWidth, fm.getHeight());
+    }
+
     private Icon getLogo(RemoteOkJob job) throws IOException, UnirestException {
         if(nonNull(job.getLogoUrl())) {
             BufferedImage image = ImageIO.read(Unirest.get(job.getLogoUrl()).asBinary().getBody());
             if(nonNull(image)) {
-                image = ComponentUtils.resize(image, 30, 30);
+                image = ComponentUtils.resize(image, 45, 45);
                 return new ImageIcon(image);
             }
         }
 
-        Icon icon = new EmptyIcon(30, 30);
+        Icon icon = new EmptyIcon(45, 45);
         return icon;
     }
 }

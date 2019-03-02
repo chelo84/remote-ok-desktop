@@ -39,6 +39,14 @@ public class ComponentUtils {
         return (JLabel) label;
     }
 
+    public static Font boldFont(Font font) {
+        return font.deriveFont(font.getStyle() | Font.BOLD);
+    }
+
+    public static Font unboldFont(Font font) {
+        return font.deriveFont(font.getStyle() & ~Font.BOLD);
+    }
+
     public static Boolean isBold(Component label) {
         return label.getFont().isBold();
     }
@@ -51,5 +59,10 @@ public class ComponentUtils {
     public static Icon getClosedHeartLabel() {
         IconFontSwing.register(FontAwesome.getIconFont());
         return IconFontSwing.buildIcon(FontAwesome.HEART, 15, Color.RED);
+    }
+
+    public static Icon getShareIcon() {
+        IconFontSwing.register(FontAwesome.getIconFont());
+        return IconFontSwing.buildIcon(FontAwesome.SHARE_SQUARE, 15, Color.BLACK);
     }
 }
