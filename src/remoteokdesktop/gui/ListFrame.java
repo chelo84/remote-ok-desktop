@@ -273,7 +273,7 @@ public class ListFrame extends JFrame {
                     likePanel.add(likeLabel);
                     othersPanel.add(likePanel);
 
-                    JPanel sharePanel = new SharePanel();
+                    JPanel sharePanel = new SharePanel(job);
                     Icon shareIcon = getShareIcon();
                     JLabel shareLabel = new JLabel(shareIcon);
                     sharePanel.add(shareLabel);
