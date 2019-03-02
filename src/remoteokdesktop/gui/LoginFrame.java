@@ -3,13 +3,13 @@ package remoteokdesktop.gui;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.miginfocom.swing.MigLayout;
 import remoteokdesktop.model.User;
-import remoteokdesktop.service.LoggedUser;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 public class LoginFrame extends JFrame {
@@ -46,7 +46,10 @@ public class LoginFrame extends JFrame {
                 String result = Files.readAllLines(Paths.get(AUTHENTICATION_PATH)).stream().collect(Collectors.joining("\n"));
                 User user = mapper.readValue(result, User.class);
                 if(usernameField.getText().equals(user.getUsername()) && passwordField.getText().equals(user.getPassword())) {
-                    LoggedUser.setUser(user);
+                    Preferences userPreferences = Preferences.userRoot();
+                    userPreferences.put("username",user.getUsername());
+                    userPreferences.put("password",user.getPassword());
+                    userPreferences.put("email",user.getEmail());
 
                     loginButton.setText("Loading...");
                     loginButton.setEnabled(false);

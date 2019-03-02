@@ -1,17 +1,13 @@
 package remoteokdesktop.gui;
 
-import com.sun.javafx.embed.AbstractEvents;
-import javafx.event.EventTarget;
-import jiconfont.icons.font_awesome.FontAwesome;
-import jiconfont.swing.IconFontSwing;
 import remoteokdesktop.model.RemoteOkJob;
 import remoteokdesktop.service.EmailService;
-import remoteokdesktop.service.LoggedUser;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.prefs.Preferences;
 
 import static java.util.Objects.nonNull;
 
@@ -39,7 +35,7 @@ public class SharePanel extends JPanel {
                 JFrame frame = new JFrame("Enviar e-mail");
                 String email = JOptionPane.showInputDialog(frame, "Compartilhar com quem? (E-mail)");
                 if(nonNull(email) && !email.isEmpty()) {
-                    EmailService.sendEmail(remoteOkJob, LoggedUser.getUser().getEmail(), email);
+                    new Thread(() -> EmailService.sendEmail(remoteOkJob, Preferences.userRoot().get("email", ""), email));
                 }
             }
         });

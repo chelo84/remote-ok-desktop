@@ -11,6 +11,7 @@ import remoteokdesktop.model.RemoteOkJob;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,6 +80,13 @@ public class RemoteOkUtils {
         String result = null;
         try {
             result = Files.readAllLines(Paths.get(FAVORITES_PATH)).stream().collect(Collectors.joining("\n"));
+        } catch (NoSuchFileException ex) {
+            try {
+                Files.createFile(Paths.get(FAVORITES_PATH));
+                result = Files.readAllLines(Paths.get(FAVORITES_PATH)).stream().collect(Collectors.joining("\n"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
