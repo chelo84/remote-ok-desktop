@@ -28,7 +28,19 @@ Duas abas: Lista de todos os jobs / Favoritos;
 
 ## Instalação
 
-### Requisitos:
+### Detalhes Técnicos
+#### Desenvolvido utilizando as seguintes principais tecnologias
+
+![java-image]
+ 
+![miglayout-image]
+ 
+![lombok-image]
+ 
+![unirest-image]
+
+
+### Requisitos
 
 * Java 8 *JDK 1.8*
 
@@ -36,7 +48,7 @@ Duas abas: Lista de todos os jobs / Favoritos;
 
 * IDE (Netbeans)
 
-### Netbeans:
+### Netbeans
 
 * Faça um clone do repositório com o comando `git clone https://github.com/chelo84/remote-ok-desktop.git` 
  na pasta que desejar;
@@ -46,7 +58,7 @@ botão direito no projeto e vá em propriedades -> Bibliotecas -> Adicionar JAR/Pa
 do projeto e entre na pasta Libs -> selecione todos os arquivos desta pasta e clique *Abrir* e então clique em Ok;
 * Pronto, está tudo configurado, apenas aperte no botão de rodar o projeto no Netbeans.
 
-#### Login
+##### Login
 Nome de usuário: remoteok
 
 Senha: remoteok
@@ -54,6 +66,12 @@ Senha: remoteok
 
 
 ## Exemplo de uso
+
+Ache os jobs que procura
+
+Adicione jobs nos favoritos para que possa encontrá-los com mais facilidade mais tarde
+
+Compartilhe os jobs por e-mail
 
 Filtre os jobs utilizando a caixa de texto no topo e apertando enter.
 
@@ -76,8 +94,7 @@ Marco Aurélio Floriani
 
 
 [java-image]: https://img.shields.io/badge/java-8.0-orange.svg
-[npm-url]: https://npmjs.org/package/datadog-metrics
-[npm-downloads]: https://img.shields.io/npm/dm/datadog-metrics.svg?style=flat-square
-[travis-image]: https://img.shields.io/travis/dbader/node-datadog-metrics/master.svg?style=flat-square
-[travis-url]: https://travis-ci.org/dbader/node-datadog-metrics
-[wiki]: https://github.com/seunome/seuprojeto/wiki
+[miglayout-image]: https://img.shields.io/badge/MigLayout-3.5.5-red.svg
+[lombok-image]: https://img.shields.io/badge/Lombok--brightgreen.svg
+[jackson-image]: https://img.shields.io/badge/Jackson-2.9.8-lightblue.svg
+[unirest-image]: https://img.shields.io/badge/Unirest-1.4.9-blue.svg

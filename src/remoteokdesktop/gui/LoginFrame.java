@@ -20,7 +20,7 @@ public class LoginFrame extends JFrame {
     public LoginFrame() {
         this.setTitle("Login");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setPreferredSize(new Dimension(250, 300));
+        this.setPreferredSize(new Dimension(250, 220));
         createComponents();
         this.setVisible(true);
         this.getContentPane().setBackground(Color.WHITE);
@@ -30,12 +30,12 @@ public class LoginFrame extends JFrame {
 
     public void createComponents()  {
         JPanel credentialsPanel = new WhitePanel(new MigLayout("fillx"));
-        JLabel usernameLabel = new JLabel("username");
+        JLabel usernameLabel = new JLabel("Username");
         JTextField usernameField = new JTextField(15);
         credentialsPanel.add(usernameLabel, "wrap");
         credentialsPanel.add(usernameField, "wrap");
 
-        JLabel passwordLabel = new JLabel("password");
+        JLabel passwordLabel = new JLabel("Password");
         JPasswordField passwordField = new JPasswordField(15);
         credentialsPanel.add(passwordLabel, "wrap");
         credentialsPanel.add(passwordField, "wrap");
