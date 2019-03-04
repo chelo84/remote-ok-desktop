@@ -54,6 +54,8 @@ public class LoginFrame extends JFrame {
                         ListFrame listFrame = new ListFrame(user.getEmail());
                         LoginFrame.this.dispose();
                     }).start();
+                } else {
+                    JOptionPane.showMessageDialog(new JFrame("Wrong credentials"), "Wrong username or password!", "Login Error", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
